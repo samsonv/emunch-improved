@@ -1,6 +1,6 @@
 {
   "name": "eMunch improved",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "manifest_version": 2,
   "description": "emunch.no improved",
   "homepage_url": "https://github.com/samsonv/emunch-improved",
@@ -16,12 +16,14 @@
     "default_popup": "src/page_action/page_action.html"
   },
   "permissions": [
-    "https://www.emunch.no/*"
+    "https://www.emunch.no/*",
+    "https://emunch.no/*"
   ],
   "content_scripts": [
     {
       "matches": [
-        "https://www.emunch.no/*"
+        "https://www.emunch.no/*",
+        "https://emunch.no/*"
       ],
       "js": [
         "src/inject/inject.js"
