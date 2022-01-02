@@ -55,7 +55,7 @@ function parseLetter(container, person) {
 
   const fromTo = !!fromToMatches?.groups?.sender && !!fromToMatches?.groups?.receiver ?
     `Fra ${fromToMatches.groups.sender} til ${fromToMatches.groups.receiver}` :
-    !!mentionsMatches?.groups?.sender ? `${mentionsMatches.groups.sender} er omtalt i følgende tekster` : 'ukjent melding'
+    !!mentionsMatches?.groups?.sender ? `${mentionsMatches.groups.sender} er omtalt i følgende tekster` : null
 
   var letters = Array.from(container.getElementsByClassName('list_item'));
   container.classList.add("imessage");
@@ -66,18 +66,19 @@ function parseLetter(container, person) {
   }
 
   return letters.map((letter) => {
-    letter.classList.add(person.className);
+    letter.classList.add(fromTo != null ? person.className : 'anyone');
     letter.classList.remove("list_item");
     letter.classList.remove("even");
     letter.classList.remove("odd");
 
-    const letterContent = letter.getElementsByClassName('right').length > 0 ?
-      letter.getElementsByClassName('right')[0].innerHTML : letter.innerHTML;
+    const letterContent = letter.textContent;
 
-    const fullDateMatch = letterContent.match(/Datert (?<day>\d{1,2})\.(?<month>\d{1,2})\.\[?(?<year>\d{4})\]?./);
-    const onlyYearMatch = !fullDateMatch && letterContent.match(/Datert\s(?<year>\d{4})(\-\d{4})?\.?/);
-    const monthAndYearMatch = !fullDateMatch && !onlyYearMatch && letterContent.match(/Datert (?<month>\d{1,2})\.\[?(?<year>\d{4})\]?./);
-    const fuzzyMatch = !fullDateMatch && !onlyYearMatch && !monthAndYearMatch && letterContent.match(/Datert .*\?.*\n/) && letterContent.match(/Datert (?<day>.*?)\.(?<month>.*?)\.(?<year>.*?)\./)
+    letter.children && [...letter.children].map(c => c.removeAttribute('style'));
+
+    const fullDateMatch = letterContent.match(/Datert[\s\n\r]*(?<day>\d{1,2})\.(?<month>\d{1,2})\.\[?(?<year>\d{4})\]?./);
+    const onlyYearMatch = !fullDateMatch && letterContent.match(/Datert[\s\n\r]*(?<year>\d{4})(\-\d{4})?\.?/);
+    const monthAndYearMatch = !fullDateMatch && !onlyYearMatch && letterContent.match(/Datert[\s\n\r]*(?<month>\d{1,2})\.\[?(?<year>\d{4})\]?./);
+    const fuzzyMatch = !fullDateMatch && !onlyYearMatch && !monthAndYearMatch && letterContent.match(/Datert[\s\n\r]*.*\?.*\n/) && letterContent.match(/Datert[\s\n\r]*(?<day>.*?)\.(?<month>.*?)\.(?<year>.*?)\./)
 
     let parsedDate = null;
     let isFuzzy = false;
@@ -118,7 +119,7 @@ function parseLetter(container, person) {
     }
 
 
-    letter.title = `${fromTo} (${parsedDate && parsedDate.toLocaleDateString('no')})${isFuzzy ? ' (kanskje)' : ''}`;
+    letter.title = `${fromTo ?? ''} (${parsedDate && parsedDate.toLocaleDateString('no')})${isFuzzy ? ' (kanskje)' : ''}`;
 
     if (isFuzzy) {
       letter.classList.add('fuzzy');
